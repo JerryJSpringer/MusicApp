@@ -110,7 +110,29 @@ public final class AudioUtil {
         return artistList;
     }
 
-    public static List<AudioModel> getAllAudioFromDevice(final Context context) {
+    public static List<AudioModel> getAlbumSongs(final Context context, final String album) {
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND " + MediaStore.Audio.Media.ALBUM + " = '" + album + "'";
+        String sortOrder = MediaStore.Audio.Media.TRACK + " ASC";
+        return getSongs(context, selection, sortOrder);
+    }
+
+    public static List<AudioModel> getArtistSongs(final Context context, final String artist) {
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0 AND "
+                + MediaStore.Audio.Media.ARTIST + " = '" + artist + "'";
+        String sortOrder = MediaStore.Audio.Media.ALBUM + " ASC, "
+                + MediaStore.Audio.Media.TRACK + " ASC, "
+                + MediaStore.Audio.Media.TITLE + " ASC";
+        return getSongs(context, selection, sortOrder);
+    }
+
+    public static List<AudioModel> getAllAudio(final Context context) {
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        return getSongs(context, selection, sortOrder);
+    }
+
+    private static List<AudioModel> getSongs(final Context context,
+                                             String selection, String sortOrder) {
         final List<AudioModel> audioList = new ArrayList<>();
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -122,10 +144,6 @@ public final class AudioUtil {
                 MediaStore.Audio.AudioColumns.TRACK,
                 MediaStore.Audio.AudioColumns.TITLE,
                 MediaStore.Audio.AudioColumns.DURATION};
-
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
-
-        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
 
         Cursor c = context.getContentResolver()
                 .query(uri, projection, selection, null, sortOrder);
