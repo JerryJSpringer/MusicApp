@@ -6,6 +6,12 @@
     <string name="text_library_tracks">tracks</string>
     <string name="text_library_albums">albums</string>
 
+    <string name="title_artist">Artist</string>
+    <string name="text_artist_song">Song Name</string>
+    <string name="text_artist_name">Artist Name</string>
+    <string name="text_artist_album">Album Name</string>
+    <string name="text_artist_spacer">-</string>
+
     <string name="title_playlist">Playlists</string>
 
 </resources>
