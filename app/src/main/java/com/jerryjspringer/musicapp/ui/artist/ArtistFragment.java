@@ -13,7 +13,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.jerryjspringer.musicapp.R;
-import com.jerryjspringer.musicapp.audio.AudioUtil;
+import com.jerryjspringer.musicapp.audio.util.AudioUtil;
+import com.jerryjspringer.musicapp.audio.util.StorageUtil;
 import com.jerryjspringer.musicapp.databinding.FragmentArtistBinding;
 
 /**
@@ -43,7 +44,9 @@ public class ArtistFragment extends Fragment {
         FragmentArtistBinding binding = FragmentArtistBinding.bind(view);
 
         binding.listRoot.setAdapter(
-                new ArtistRecyclerViewAdapter(AudioUtil.getArtistSongs(getContext(), mArtist)));
+                new ArtistRecyclerViewAdapter(
+                        AudioUtil.getArtistSongs(getContext(), mArtist),
+                        new StorageUtil(getContext())));
 
         binding.listRoot.addItemDecoration(
                 new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
