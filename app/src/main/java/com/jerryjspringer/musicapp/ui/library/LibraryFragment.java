@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.jerryjspringer.musicapp.R;
-import com.jerryjspringer.musicapp.audio.AudioUtil;
+import com.jerryjspringer.musicapp.audio.util.AudioUtil;
 import com.jerryjspringer.musicapp.databinding.FragmentLibraryBinding;
 
 /**
