@@ -6,25 +6,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.media.MediaSessionManager;
 
 import com.jerryjspringer.musicapp.MainActivity;
-import com.jerryjspringer.musicapp.R;
 import com.jerryjspringer.musicapp.audio.model.AudioModel;
+import com.jerryjspringer.musicapp.audio.util.StorageUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,8 +40,8 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
 
     // MediaSession
     private MediaSessionManager mMediaSessionManager;
-    private MediaSessionCompat mMediaSession;
-    private MediaControllerCompat.TransportControls mTransportControls;
+    private MediaSession mMediaSession;
+    private MediaController.TransportControls mTransportControls;
 
     // AudioPlayer Notification ID
     private static final int NOTIFICATION_ID = 101;
@@ -57,29 +54,30 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
     private AudioManager mAudioManager;
 
     // Audio Files
-    private List<AudioModel> mAudioList;
+    private List<AudioModel> mPlaylist;
     private AudioModel mCurrentAudio;
     private int mAudioIndex;
-    private String mMediaFile;
     private int resumePosition;
 
-    private BroadcastReceiver playNewAudio = new BroadcastReceiver() {
+    private final BroadcastReceiver playNewAudio = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             // Get the new media index from SharedPreferences
-            mAudioIndex = new AudioUtil(getApplicationContext()).loadAudioIndex();
-            if (mAudioIndex != -1 && mAudioIndex < mAudioList.size()) {
-                // Index is valid
-                mCurrentAudio = mAudioList.get(mAudioIndex);
-            } else {
-                stopSelf();
-            }
+            StorageUtil storageUtil = new StorageUtil(getApplicationContext());
+            mPlaylist = storageUtil.loadCurrentPlaylist();
+            mAudioIndex = storageUtil.loadAudioIndex();
 
-            // Action received
+            // Check indices
+            if (mAudioIndex != -1 && mAudioIndex < mPlaylist.size())
+                mCurrentAudio = mPlaylist.get(mAudioIndex);
+            else
+                stopSelf();
+
             // Reset and play new audio
             stopMedia();
             mMediaPlayer.reset();
             initMediaPlayer();
+
             // TODO Notifications, playback status, and metadata
             /*
             updateMetaData();
@@ -91,12 +89,12 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
-            AudioUtil util = new AudioUtil(getApplicationContext());
-            mAudioList = util.loadAudio();
+            StorageUtil util = new StorageUtil(getApplicationContext());
+            mPlaylist = util.loadCurrentPlaylist();
             mAudioIndex = util.loadAudioIndex();
 
-            if (-1 < mAudioIndex && mAudioIndex < mAudioList.size()) {
-                mCurrentAudio = mAudioList.get(mAudioIndex);
+            if (-1 < mAudioIndex && mAudioIndex < mPlaylist.size()) {
+                mCurrentAudio = mPlaylist.get(mAudioIndex);
             } else {
                 stopSelf();
             }
@@ -144,10 +142,7 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
         }
 
         removeAudioFocus();
-
         unregisterReceiver(playNewAudio);
-
-        new AudioUtil(getApplicationContext()).clearCachedAudioPlaylist();
     }
 
     @Override
@@ -273,14 +268,14 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
     }
 
     private void skipToNext() {
-        if (mAudioIndex == mAudioList.size() - 1) {
+        if (mAudioIndex == mPlaylist.size() - 1) {
             mAudioIndex = 0;
-            mCurrentAudio = mAudioList.get(mAudioIndex);
+            mCurrentAudio = mPlaylist.get(mAudioIndex);
         } else {
-            mCurrentAudio = mAudioList.get(++mAudioIndex);
+            mCurrentAudio = mPlaylist.get(++mAudioIndex);
         }
 
-        new AudioUtil(getApplicationContext()).storeAudioIndex(mAudioIndex);
+        new StorageUtil(getApplicationContext()).storeAudioIndex(mAudioIndex);
 
         stopMedia();
         mMediaPlayer.reset();
@@ -289,13 +284,13 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
 
     private void skipToPrevious() {
         if (mAudioIndex == 0) {
-            mAudioIndex = mAudioList.size() - 1;
-            mCurrentAudio = mAudioList.get(mAudioIndex);
+            mAudioIndex = mPlaylist.size() - 1;
+            mCurrentAudio = mPlaylist.get(mAudioIndex);
         } else {
-            mCurrentAudio = mAudioList.get(--mAudioIndex);
+            mCurrentAudio = mPlaylist.get(--mAudioIndex);
         }
 
-        new AudioUtil(getApplicationContext()).storeAudioIndex(mAudioIndex);
+        new StorageUtil(getApplicationContext()).storeAudioIndex(mAudioIndex);
 
         stopMedia();
         mMediaPlayer.reset();
@@ -339,10 +334,10 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
         if (mMediaSessionManager != null)
             return;
 
-        mMediaSessionManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
+        mMediaSessionManager = MediaSessionManager.getSessionManager(getApplicationContext());
 
         // Create a new MediaSession
-        mMediaSession = new MediaSessionCompat(getApplicationContext(), "MusicApp");
+        mMediaSession = new MediaSession(getApplicationContext(), "MusicApp");
 
         // Get MediaSessions transport controls
         mTransportControls = mMediaSession.getController().getTransportControls();
@@ -352,13 +347,10 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
 
         // Indicate that the MediaSession handles transport control commands
         // through its MediaSessionCompat.Callback
-        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-        // Set MediaSession's Metadata
-        updateMetaData();
+        mMediaSession.setFlags(MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         // Attach Callback to receive MediaSession updates
-        mMediaSession.setCallback(new MediaSessionCompat.Callback() {
+        mMediaSession.setCallback(new MediaSession.Callback() {
             @Override
             public void onPlay() {
                 super.onPlay();
@@ -376,14 +368,12 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
             public void onSkipToNext() {
                 super.onSkipToNext();
                 skipToNext();
-                updateMetaData();
             }
 
             @Override
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
                 skipToPrevious();
-                updateMetaData();
             }
 
             @Override
@@ -438,19 +428,6 @@ public class AudioService extends Service implements MediaPlayer.OnCompletionLis
 
     }
      */
-
-    private void updateMetaData() {
-        Bitmap albumArt = BitmapFactory.decodeResource(getResources(),
-                R.drawable.image);
-
-        // Update the current metadata
-        mMediaSession.setMetadata(new MediaMetadataCompat.Builder()
-                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, mCurrentAudio.getArtist())
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, mCurrentAudio.getAlbum())
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, mCurrentAudio.getTitle())
-                .build());
-    }
 
     private void register_playNewAudio() {
         // Register playNewMedia receiver
