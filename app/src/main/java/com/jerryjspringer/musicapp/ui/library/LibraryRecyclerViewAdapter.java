@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jerryjspringer.musicapp.R;
@@ -28,10 +29,7 @@ public class LibraryRecyclerViewAdapter extends RecyclerView.Adapter<LibraryRecy
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.fragment_library_artist, parent, false);
-
-        // Set onClick listener
         view.setOnClickListener(this::onClick);
-
         return new ArtistViewHolder(view);
     }
 
@@ -53,28 +51,34 @@ public class LibraryRecyclerViewAdapter extends RecyclerView.Adapter<LibraryRecy
 
     private void onClick(View view) {
         int position = mRecyclerView.getChildAdapterPosition(view);
+
+        String artist = mArtists.get(position).getArtist();
+
+        Navigation.findNavController(view).navigate(
+                LibraryFragmentDirections
+                    .actionNavigationLibraryToArtistFragment(artist));
     }
 
     class ArtistViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
-        private FragmentLibraryArtistBinding binding;
+        private FragmentLibraryArtistBinding mBinding;
         private ArtistModel mArtist;
 
         public ArtistViewHolder(@NonNull View view) {
             super(view);
             mView = view;
-            binding = FragmentLibraryArtistBinding.bind(view);
+            mBinding = FragmentLibraryArtistBinding.bind(view);
         }
 
         void setArtist(final ArtistModel artist) {
             mArtist = artist;
 
-            binding.textArtist.setText(artist.getArtist());
+            mBinding.textArtist.setText(artist.getArtist());
 
             String tracks = artist.getTracks()  + " " + ((artist.getTracks() == 1) ? "track" : "tracks");
             String albums = artist.getAlbums() + " " + ((artist.getAlbums() == 1) ? "album" : "albums");
-            binding.textTracks.setText(tracks);
-            binding.textAlbums.setText(albums);
+            mBinding.textTracks.setText(tracks);
+            mBinding.textAlbums.setText(albums);
         }
     }
 }
