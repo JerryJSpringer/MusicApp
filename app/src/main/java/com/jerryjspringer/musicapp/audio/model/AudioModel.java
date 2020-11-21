@@ -1,4 +1,4 @@
-package com.jerryjspringer.musicapp.audio;
+package com.jerryjspringer.musicapp.audio.model;
 
 public class AudioModel {
     private String mPath;
