@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!--
+        Nest the card inside of a frame. Programmatically set the
+        gravity of the Card inside to the start (left) or
+        end (right) while the Frame extends the width of the
+        screen.
+    -->
+
+    <!--  MaterialCardView instead of androidx.CardView  -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_inner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toTopOf="@+id/text_title"
+            app:layout_constraintTop_toTopOf="@+id/text_title">
+
+            <TextView
+                android:id="@+id/text_song_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:paddingTop="8dp"
+                android:text="@string/text_artist_song"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_song_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:padding="4dp"
+                android:text="@string/text_artist_name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/text_song_title" />
+
+            <TextView
+                android:id="@+id/text_song_spacer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="@string/text_artist_spacer"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@id/text_song_artist"
+                app:layout_constraintTop_toBottomOf="@+id/text_song_title" />
+
+            <TextView
+                android:id="@+id/text_song_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="@string/text_artist_album"
+                app:layout_constraintStart_toEndOf="@+id/text_song_spacer"
+                app:layout_constraintTop_toBottomOf="@+id/text_song_title" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>
