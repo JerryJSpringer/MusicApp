@@ -1,71 +1,20 @@
-package com.jerryjspringer.musicapp.audio;
+package com.jerryjspringer.musicapp.audio.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jerryjspringer.musicapp.audio.model.ArtistModel;
 import com.jerryjspringer.musicapp.audio.model.AudioModel;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class AudioUtil {
 
-    private final String AUDIO_LIST = "AUDIO_LIST";
-    private final String AUDIO_INDEX = "AUDIO_INDEX";
-    private final String STORAGE = "com.jerryjspringer.musicapp.STORAGE";
-    private SharedPreferences mPreferences;
-    private Context mContext;
-
-    public AudioUtil(Context context) {
-        mContext = context;
-    }
-
-    public void storeAudio(List<AudioModel> audioList) {
-        mPreferences = mContext.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = mPreferences.edit();
-        Gson gson  = new Gson();
-        String json = gson.toJson(audioList);
-        editor.putString(AUDIO_LIST, json);
-        editor.apply();
-    }
-
-    public List<AudioModel> loadAudio() {
-        mPreferences = mContext.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-
-        Gson gson = new Gson();
-        String json = mPreferences.getString(AUDIO_LIST, null);
-        Type type = new TypeToken<List<AudioModel>>() {}.getType();
-
-        return gson.fromJson(json, type);
-    }
-
-    public void storeAudioIndex(int index) {
-        mPreferences = mContext.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putInt(AUDIO_INDEX, index);
-        editor.apply();
-    }
-
-    public int loadAudioIndex() {
-        mPreferences = mContext.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        // -1 is the default value returned if nothing is found
-        return mPreferences.getInt(AUDIO_INDEX, -1);
-    }
-
-    public void clearCachedAudioPlaylist() {
-        mPreferences = mContext.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = mPreferences.edit();
-        editor.clear();
-        editor.apply();
+    private AudioUtil() {
     }
 
     public static List<ArtistModel> getArtists(final Context context) {
