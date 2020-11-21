@@ -10,10 +10,23 @@
         android:id="@+id/navigation_library"
         android:name="com.jerryjspringer.musicapp.ui.library.LibraryFragment"
         android:label="@string/title_library"
-        tools:layout="@layout/fragment_library" />
+        tools:layout="@layout/fragment_library" >
+        <action
+            android:id="@+id/action_navigation_library_to_artistFragment"
+            app:destination="@id/artistFragment" />
+    </fragment>
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.jerryjspringer.musicapp.ui.playlist.PlaylistFragment"
         android:label="@string/title_playlist"
         tools:layout="@layout/fragment_playlist" />
+    <fragment
+        android:id="@+id/artistFragment"
+        android:name="com.jerryjspringer.musicapp.ui.artist.ArtistFragment"
+        android:label="@string/title_artist"
+        tools:layout="@layout/fragment_artist" >
+        <argument
+            android:name="artist"
+            app:argType="string" />
+    </fragment>
 </navigation>
