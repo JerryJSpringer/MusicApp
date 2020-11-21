@@ -13,12 +13,12 @@ import com.jerryjspringer.musicapp.databinding.FragmentLibraryArtistBinding;
 
 import java.util.List;
 
-public class ArtistRecyclerViewAdapter extends RecyclerView.Adapter<ArtistRecyclerViewAdapter.ArtistViewHolder> {
+public class LibraryRecyclerViewAdapter extends RecyclerView.Adapter<LibraryRecyclerViewAdapter.ArtistViewHolder> {
 
     private final List<ArtistModel> mArtists;
     private RecyclerView mRecyclerView;
 
-    public ArtistRecyclerViewAdapter(List<ArtistModel> artists) {
+    public LibraryRecyclerViewAdapter(List<ArtistModel> artists) {
         mArtists = artists;
     }
 
