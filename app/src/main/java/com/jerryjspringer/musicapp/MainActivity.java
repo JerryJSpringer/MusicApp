@@ -21,11 +21,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.jerryjspringer.musicapp.audio.model.AudioModel;
 import com.jerryjspringer.musicapp.audio.AudioService;
-import com.jerryjspringer.musicapp.audio.AudioUtil;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,12 +30,9 @@ public class MainActivity extends AppCompatActivity {
     // UI Items
     private AppBarConfiguration mAppBarConfiguration;
 
-    // Audio Services
+    // Audio Service
     private AudioService mAudioService;
     private boolean mServiceBound;
-
-    // Audio Files
-    private List<AudioModel> mAudioList;
 
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
@@ -116,27 +109,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public List<AudioModel> loadAudio() {
-        mAudioList = AudioUtil.getAllAudio(this);
-        return mAudioList;
-    }
-
-    public void playAudio(int audioIndex) {
-        // Checks if the service is active
-        AudioUtil util = new AudioUtil(getApplicationContext());
-
+    public void playAudio() {
+        // Check if the service is active
         if (!mServiceBound) {
-            // Store serializable audio list to SharedPreferences
-            util.storeAudio(mAudioList);
-            util.storeAudioIndex(audioIndex);
-
+            // Service inactive
             Intent audioIntent = new Intent(this, AudioService.class);
             startService(audioIntent);
             bindService(audioIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         } else {
-            // Store the new audioIndex to SharedPreferences
-            util.storeAudioIndex(audioIndex);
-
             // Service is active
             Intent broadcastIntent = new Intent(Broadcast_PLAY_NEW_AUDIO);
             sendBroadcast(broadcastIntent);
