@@ -15,11 +15,13 @@
             android:id="@+id/action_navigation_library_to_artistFragment"
             app:destination="@id/artistFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.jerryjspringer.musicapp.ui.playlist.PlaylistFragment"
         android:label="@string/title_playlist"
         tools:layout="@layout/fragment_playlist" />
+
     <fragment
         android:id="@+id/artistFragment"
         android:name="com.jerryjspringer.musicapp.ui.artist.ArtistFragment"
@@ -28,5 +30,15 @@
         <argument
             android:name="artist"
             app:argType="string" />
+        <action
+            android:id="@+id/action_artistFragment_to_songFragment"
+            app:destination="@id/songFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/songFragment"
+        android:name="com.jerryjspringer.musicapp.ui.song.SongFragment"
+        android:label="@string/title_song"
+        tools:layout="@layout/fragment_song" >
     </fragment>
 </navigation>
