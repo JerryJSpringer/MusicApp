@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public List<AudioModel> loadAudio() {
-        mAudioList = AudioUtil.getAllAudioFromDevice(this);
+        mAudioList = AudioUtil.getAllAudio(this);
         return mAudioList;
     }
 
